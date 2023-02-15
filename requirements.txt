@@ -3,5 +3,6 @@ gunicorn
 flask
 pymongo
 google-cloud-pubsub
+google-cloud-bigquery
 cryptography
 croniter
