@@ -14,12 +14,14 @@ def Connect():
     return client
 
 
-def Upload_JSON(dataset_name, table_name, data):
+def Upload_JSON(dataset_name, table_name, json_list):
     client = Connect()
     table_ref = client.dataset(dataset_name).table(table_name)
     table = client.get_table(table_ref)
 
-    errors = client.insert_rows(table, data)
+    errors = client.insert_rows(table, json_list)
 
     if errors == []: print('Data successfully inserted into the target table.')
-    else: print('Encountered errors while inserting data into the target table.')
+    else: 
+        print('Encountered errors while inserting data into the target table.')
+        print(errors)
