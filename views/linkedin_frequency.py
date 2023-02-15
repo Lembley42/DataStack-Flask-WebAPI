@@ -10,7 +10,7 @@ from helpers.jsonencoder import Get_Encoder
 
 
 li_fq_bp = Blueprint('linkedin_frequency', __name__)
-data_db = Get_Database('linkedin_frequency')
+data_db = Get_Database('linkedin_frequenz')
 
 # Upload
 @li_fq_bp.route('/upload/linkedin_frequency/<string:customer_name>', methods=['POST'])
