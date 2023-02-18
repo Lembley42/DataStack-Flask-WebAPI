@@ -1,6 +1,7 @@
 gevent
 gunicorn
 flask
+flask-cors
 pymongo
 google-cloud-pubsub
 google-cloud-bigquery
