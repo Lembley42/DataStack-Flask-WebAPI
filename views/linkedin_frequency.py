@@ -28,6 +28,7 @@ def upload_linkedin_frequency(customer_name):
 
 
         ### BIGQUERY ###
+        
         Upload_JSON('linkedin_frequenz', customer_name, [data])
 
 

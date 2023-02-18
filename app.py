@@ -1,5 +1,6 @@
 ### IMPORTS ###
 from flask import Flask, request, jsonify, Blueprint
+from flask_cors import CORS
 import os 
 # Helper Imports
 from helpers.filedecryption import Decrypt_File
@@ -10,6 +11,7 @@ from views.linkedin_frequency import li_fq_bp
 
 # Create Flask app
 app = Flask(__name__)
+CORS(app)
 
 # Get Environment Variables
 API_KEY = os.environ.get('API_KEY')
