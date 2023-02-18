@@ -18,7 +18,11 @@ projects_db = Get_Database('projects')
 def create_project():
     if request.method == 'POST':
         collection = projects_db['all']
-        collection.insert_one(request.get_json())
+        data = request.get_json()
+        user = data['user']
+        project = data['project']
+        collection.insert_one(project)
+        # Add user to project / Project to user
         return 'Project created successfully', 200
 
 
