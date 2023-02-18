@@ -7,6 +7,7 @@ from helpers.filedecryption import Decrypt_File
 from helpers.jsonencoder import Get_Encoder
 # View Imports
 from views.tasks import tasks_bp
+from views.projects import projects_bp
 from views.linkedin_frequency import li_fq_bp
 
 # Create Flask app
@@ -23,9 +24,10 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google-credentials.json'
 
 # Register JSON Encoder
 JSONEncoder = Get_Encoder()
+app.json_encoder = JSONEncoder
 
 # Register Blueprints
-for bp in [tasks_bp, li_fq_bp]:
+for bp in [tasks_bp, projects_bp, li_fq_bp]:
     app.register_blueprint(bp)
 
 ### BEFORE REQUEST ###
