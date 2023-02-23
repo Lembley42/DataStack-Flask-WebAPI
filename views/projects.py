@@ -18,8 +18,7 @@ projects_coll = projects_db['projects']
 def create_project():
     if request.method == 'POST':
         data = request.get_json()
-        project = data['project']
-        projects_coll.insert_one(project)
+        projects_coll.insert_one(data)
         #TODO: Add user to project / Project to user
         return 'Project created successfully', 200
     else: return 'Wrong request method, expected POST', 400
@@ -38,8 +37,7 @@ def read_project(project_id):
 def update_project(project_id):
     if request.method == 'PUT':
         data = request.get_json()
-        project = data['project']
-        projects_coll.update_one({'_id': ObjectId(project_id)}, {'$set': project})
+        projects_coll.update_one({'_id': ObjectId(project_id)}, {'$set': data})
         return 'Project updated successfully', 200
     else: return 'Wrong request method, expected PUT', 400
 
