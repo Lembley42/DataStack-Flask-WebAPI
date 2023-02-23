@@ -18,7 +18,6 @@ projects_coll = projects_db['projects']
 def create_project():
     if request.method == 'POST':
         data = request.get_json()
-        user = data['user']
         project = data['project']
         projects_coll.insert_one(project)
         #TODO: Add user to project / Project to user
