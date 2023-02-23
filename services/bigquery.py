@@ -16,6 +16,8 @@ def Connect():
 
 def Upload_JSON(dataset_name, table_name, json_list):
     client = Connect()
+    # TODO: Check if dataset exists, if not create it
+    # TODO: Check if table exists, if not create it and set schema
     table_ref = client.dataset(dataset_name).table(table_name)
     table = client.get_table(table_ref)
 

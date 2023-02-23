@@ -11,64 +11,58 @@ from helpers.jsonencoder import Get_Encoder
 
 
 tasks_bp = Blueprint('tasks', __name__)
-tasks_db = Get_Database('tasks')
+tasks_db = Get_Database('userData')
+tasks_coll = tasks_db['tasks']
 
-@tasks_bp.route('/tasks/create/<string:task_type>', methods=['POST'])
+@tasks_bp.route('/tasks/create', methods=['POST'])
 def create_task(task_type):
     if request.method == 'POST':
-        collection = tasks_db[task_type]
-        collection.insert_one(request.get_json())
+        tasks_coll.insert_one(request.get_json())
         return 'Task created successfully', 200
+    else: return 'Wrong request method, expected POST', 400
 
 
-@tasks_bp.route('/tasks/read/<string:task_type>/<string:task_id>', methods=['GET'])
-def read_task(task_type, task_id):
+@tasks_bp.route('/tasks/read/<string:task_id>', methods=['GET'])
+def read_task(task_id):
     if request.method == 'GET':
-        collection = tasks_db[task_type]
-        task = collection.find_one({'_id': ObjectId(task_id)})
+        task = tasks_coll.find_one({'_id': ObjectId(task_id)})
         json_data = json.dumps(task, cls=Get_Encoder())
         return json_data, 200
 
 
-@tasks_bp.route('/tasks/update/<string:task_type>/<string:task_id>', methods=['PUT'])
-def update_task(task_type, task_id):
+@tasks_bp.route('/tasks/update/<string:task_id>', methods=['PUT'])
+def update_task(task_id):
     if request.method == 'PUT':
-        collection = tasks_db[task_type]
-        collection.update_one({'_id': ObjectId(task_id)}, {'$set': request.get_json()})
+        tasks_coll.update_one({'_id': ObjectId(task_id)}, {'$set': request.get_json()})
         return 'Task updated successfully', 200
 
 
-@tasks_bp.route('/tasks/delete/<string:task_type>/<string:task_id>', methods=['DELETE'])
-def delete_task(task_type, task_id):
+@tasks_bp.route('/tasks/delete/<string:task_id>', methods=['DELETE'])
+def delete_task(task_id):
     if request.method == 'DELETE':
-        collection = tasks_db[task_type]
-        collection.delete_one({'_id': ObjectId(task_id)})
+        tasks_coll.delete_one({'_id': ObjectId(task_id)})
         return 'Task deleted successfully', 200
 
 
-@tasks_bp.route('/tasks/list/<string:task_type>', methods=['GET'])
-def list_tasks(task_type):
+@tasks_bp.route('/tasks/list', methods=['GET'])
+def list_tasks():
     if request.method == 'GET':
-        print(task_type)
-        collection = tasks_db[task_type]
-        tasks = list(collection.find())
+        tasks = list(tasks_coll.find())
         json_data = json.dumps(tasks, cls=Get_Encoder())
         return (json_data), 200
 
 
-@tasks_bp.route('/tasks/query/<string:task_type>', methods=['POST'])
+@tasks_bp.route('/tasks/query', methods=['POST'])
 def query_tasks(task_type):
     if request.method == 'POST':
-        collection = tasks_db[task_type]
-        tasks = list(collection.find(request.get_json()))
+        tasks = list(tasks_coll.find(request.get_json()))
         json_data = list(json.dumps(tasks, cls=Get_Encoder()))
         return json_data, 200
 
-@tasks_bp.route('/tasks/log/<string:task_type>/<string:task_id>', methods=['PUT'])
-def log_task(task_type, task_id):
+@tasks_bp.route('/tasks/log/<string:task_id>', methods=['PUT'])
+def log_task(task_id):
     if request.method == 'PUT':
-        collection = tasks_db[task_type]
-        collection.update_one({'_id': ObjectId(task_id)}, {'$push': {'log': request.get_json()}})
+        tasks_coll.update_one({'_id': ObjectId(task_id)}, {'$push': {'log': request.get_json()}})
         return 'Task logged successfully', 200
 
 
