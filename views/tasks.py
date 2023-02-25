@@ -15,7 +15,7 @@ tasks_db = Get_Database('userData')
 tasks_coll = tasks_db['tasks']
 
 @tasks_bp.route('/tasks/create', methods=['POST'])
-def create_task(task_type):
+def create_task():
     if request.method == 'POST':
         tasks_coll.insert_one(request.get_json())
         return 'Task created successfully', 200
@@ -53,11 +53,12 @@ def list_tasks():
 
 
 @tasks_bp.route('/tasks/query', methods=['POST'])
-def query_tasks(task_type):
+def query_tasks():
     if request.method == 'POST':
         tasks = list(tasks_coll.find(request.get_json()))
         json_data = list(json.dumps(tasks, cls=Get_Encoder()))
         return json_data, 200
+
 
 @tasks_bp.route('/tasks/log/<string:task_id>', methods=['PUT'])
 def log_task(task_id):
@@ -66,12 +67,11 @@ def log_task(task_id):
         return 'Task logged successfully', 200
 
 
-@tasks_bp.route('/tasks/reschedule/<string:task_type>/<string:task_id>', methods=['PUT'])
-def reschedule_task(task_type, task_id):
+@tasks_bp.route('/tasks/reschedule/<string:task_id>', methods=['PUT'])
+def reschedule_task(task_id):
     if request.method == 'PUT':
         # Load task from database
-        collection = tasks_db[task_type]
-        task = collection.find_one({'_id': ObjectId(id)})
+        task = tasks_coll.find_one({'_id': ObjectId(task_id)})
         # Get variables from task document
         mode = task['mode']
         next_run = task['schedule']['next_run']
@@ -87,18 +87,17 @@ def reschedule_task(task_type, task_id):
             next_run = next_run + timedelta(minutes=5 - next.minute % 5)
             next_run = next_run.replace(second=0, microsecond=0)
         # Update task
-        collection.update_one({'_id': ObjectId(id)}, {'$set': {'schedule.next_run': next_run}})
+        tasks_coll.update_one({'_id': ObjectId(task_id)}, {'$set': {'schedule.next_run': next_run}})
         # Return success message
         return 'Task rescheduled successfully', 200
 
 
 # Get Date Range
-@tasks_bp.route('/tasks/date_range/<string:task_type>/<string:task_id>', methods=['GET'])
-def get_date_range(task_type, task_id):
+@tasks_bp.route('/tasks/date_range/<string:task_id>', methods=['GET'])
+def get_date_range(task_id):
     if request.method == 'GET':
         # Get task from document by ObjectId
-        collection = tasks_db[task_type]
-        task = collection.find_one({'_id': ObjectId(task_id)})
+        task = tasks_coll.find_one({'_id': ObjectId(task_id)})
         # Determine date range
         mode = task['mode']
         task_settings = task['settings']
@@ -111,11 +110,11 @@ def get_date_range(task_type, task_id):
         # If last date is within update range, ensure mode is update
         if mode == 'load' and (last_date + timedelta(days=daysToUpdate)) >= today:
             mode = 'update'
-            collection.update_one({'_id': ObjectId(task_id)}, {'$set': {'mode': mode}})
+            tasks_coll.update_one({'_id': ObjectId(task_id)}, {'$set': {'mode': mode}})
         # If last date is not within update range, ensure mode is load
         elif mode == 'update' and (last_date + timedelta(days=daysToUpdate)) < today: 
             mode = 'load'
-            collection.update_one({'_id': ObjectId(task_id)}, {'$set': {'mode': mode}})
+            tasks_coll.update_one({'_id': ObjectId(task_id)}, {'$set': {'mode': mode}})
 
         # When Update, start date is today and end date is today - daysToUpdate, but no earlier than first_date
         if mode == 'update':
@@ -138,19 +137,17 @@ def get_date_range(task_type, task_id):
 
 
 
-@tasks_bp.route('/tasks/block/<string:task_type>/<string:task_id>', methods=['PUT'])
-def block_task(task_type, task_id):
+@tasks_bp.route('/tasks/block/<string:task_id>', methods=['PUT'])
+def block_task(task_id):
     if request.method == 'PUT':
-        collection = tasks_db[task_type]
-        collection.update_one({'_id': ObjectId(task_id)}, {'$set': {'status': 'running'}})
+        tasks_coll.update_one({'_id': ObjectId(task_id)}, {'$set': {'status': 'running'}})
         return 'Task blocked successfully', 200
 
 
-@tasks_bp.route('/tasks/unblock/<string:task_type>/<string:task_id>', methods=['PUT'])
-def unblock_task(task_type, task_id):
+@tasks_bp.route('/tasks/unblock/<string:task_id>', methods=['PUT'])
+def unblock_task(task_id):
     if request.method == 'PUT':
-        collection = tasks_db[task_type]
-        collection.update_one({'_id': ObjectId(task_id)}, {'$set': {'status': 'idle'}})
+        tasks_coll.update_one({'_id': ObjectId(task_id)}, {'$set': {'status': 'idle'}})
         return 'Task unblocked successfully', 200
 
 
